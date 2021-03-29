@@ -7,7 +7,7 @@ namespace ToDo.API.Models
 {
     public class ResponseModel<T> where T : class
     {
-        public bool Error { get; set; }
+        public bool Error { get; set; } = false;
         public int Code { get; set; }
         public string Message { get; set; }
         public T Entity { get; set; }

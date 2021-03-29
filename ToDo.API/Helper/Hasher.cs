@@ -13,5 +13,10 @@ namespace ToDo.API.Helper
                 return BitConverter.ToString(sha256.ComputeHash(Encoding.UTF8.GetBytes(text))).Replace("-", "").ToLower();
             }
         }
+
+        internal static string Hash(object password)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

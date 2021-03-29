@@ -5,6 +5,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using ToDo.API.Repositories;
+using ToDo.API.Services;
 
 namespace ToDo.API
 {
@@ -26,6 +28,7 @@ namespace ToDo.API
                 x.SwaggerDoc("v1", new OpenApiInfo { Title = "ToDo App API", Version = "v1" });
             });
             services.AddCouchbase(Configuration.GetSection("Couchbase"));
+            services.AddTransient<ICoreService, CoreRepository>();
 
         }
 
