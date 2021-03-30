@@ -1,6 +1,4 @@
-﻿using Couchbase.Core;
-using Couchbase.Extensions.DependencyInjection;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Text;
 using System.Threading.Tasks;
