@@ -1,16 +1,29 @@
 ﻿using Couchbase.Core;
+using Couchbase.Extensions.DependencyInjection;
 using Couchbase.Linq;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 using ToDo.API.Helper;
 using ToDo.API.Models;
+using ToDo.API.Providers;
 using ToDo.API.Services;
 
 namespace ToDo.API.Repositories
 {
     public class CoreRepository : ICoreService
     {
+        private readonly IBucket usersBucket;
+        private readonly IBucket categoriesBucket;
+        private readonly IBucket todosBucket;
+
+        public CoreRepository(IUsersBucketProvider uBucket, ICategoriesBucketProvider cBucket, ITodosBucketProvider tBucket)
+        {
+            usersBucket = uBucket.GetBucket();
+            categoriesBucket = cBucket.GetBucket();
+            todosBucket = tBucket.GetBucket();
+        }
+
         private ResponseModel<T> CheckEntity<T>(T entity) where T : class
         {
             return new ResponseModel<T>
@@ -31,7 +44,7 @@ namespace ToDo.API.Repositories
             };
         }
 
-        public ResponseModel<User> LogIn(User entity, IBucket bucket)
+        public ResponseModel<User> LogIn(User entity)
         {
             ResponseModel<User> response = new ResponseModel<User>();
             try
@@ -39,7 +52,7 @@ namespace ToDo.API.Repositories
                 if (entity == null)
                     CheckEntity(entity);
 
-                var context = new BucketContext(bucket);
+                var context = new BucketContext(usersBucket);
                 var user = context.Query<User>().FirstOrDefault(u => u.Username == entity.Username && u.Password == Hasher.Hash(entity.Password));
                 if (user == null)
                 {
@@ -58,7 +71,7 @@ namespace ToDo.API.Repositories
             }
         }
 
-        public async Task<ResponseModel<User>> CreateOrUpdateUserAsync(User entity, IBucket bucket)
+        public async Task<ResponseModel<User>> CreateOrUpdateUserAsync(User entity)
         {
             ResponseModel<User> response = new ResponseModel<User>();
             try
@@ -71,13 +84,13 @@ namespace ToDo.API.Repositories
                     entity.Id = Guid.NewGuid().ToString();
                     entity.CreateDateTime = DateTime.Now;
                     entity.Password = Hasher.Hash(entity.Password);
-                    await bucket.InsertAsync(entity.Id, entity);
-                    var userDocument = await bucket.GetDocumentAsync<User>(entity.Id);
+                    await usersBucket.InsertAsync(entity.Id, entity);
+                    var userDocument = await usersBucket.GetDocumentAsync<User>(entity.Id);
                     response.Entity = userDocument.Content;
                 }
                 else
                 {
-                    var context = new BucketContext(bucket);
+                    var context = new BucketContext(usersBucket);
                     var user = context.Query<User>().FirstOrDefault(u => u.Id == entity.Id);
                     if (user == null)
                     {
@@ -87,11 +100,11 @@ namespace ToDo.API.Repositories
                     }
                     else
                     {
-                        var userDocument = await bucket.GetDocumentAsync<User>(entity.Id);
+                        var userDocument = await usersBucket.GetDocumentAsync<User>(entity.Id);
                         userDocument.Content.NameSurname = entity.NameSurname;
                         userDocument.Content.Username = entity.Username;
                         userDocument.Content.Password = Hasher.Hash(entity.Password);
-                        await bucket.UpsertAsync(userDocument.Document);
+                        await usersBucket.UpsertAsync(userDocument.Document);
                         context.SubmitChanges();
                         response.Entity = userDocument.Content;
                     }
@@ -105,7 +118,7 @@ namespace ToDo.API.Repositories
             }
         }
 
-        public async Task<ResponseModel<Category>> CreateOrUpdateCategoryAsync(Category entity, IBucket bucket)
+        public async Task<ResponseModel<Category>> CreateOrUpdateCategoryAsync(Category entity)
         {
             try
             {
@@ -118,13 +131,13 @@ namespace ToDo.API.Repositories
                     entity.Id = Guid.NewGuid().ToString();
                     entity.CreateDateTime = DateTime.Now;
                     entity.PinnedDateTime = (entity.IsPinned ? DateTime.Now : (DateTime?)null);
-                    await bucket.InsertAsync(entity.Id, entity);
-                    var categoryDocument = await bucket.GetDocumentAsync<Category>(entity.Id);
+                    await categoriesBucket.InsertAsync(entity.Id, entity);
+                    var categoryDocument = await categoriesBucket.GetDocumentAsync<Category>(entity.Id);
                     response.Entity = categoryDocument.Content;
                 }
                 else
                 {
-                    var context = new BucketContext(bucket);
+                    var context = new BucketContext(categoriesBucket);
                     var category = context.Query<Category>().FirstOrDefault(u => u.Id == entity.Id);
                     if (category == null)
                     {
@@ -134,11 +147,11 @@ namespace ToDo.API.Repositories
                     }
                     else
                     {
-                        var categoryDocument = await bucket.GetDocumentAsync<Category>(entity.Id);
+                        var categoryDocument = await categoriesBucket.GetDocumentAsync<Category>(entity.Id);
                         categoryDocument.Content.Name = entity.Name;
                         categoryDocument.Content.IsPinned = entity.IsPinned;
                         categoryDocument.Content.PinnedDateTime = (entity.IsPinned ? DateTime.Now : (DateTime?)null);
-                        await bucket.UpsertAsync(categoryDocument.Document);
+                        await categoriesBucket.UpsertAsync(categoryDocument.Document);
                         context.SubmitChanges();
                         response.Entity = categoryDocument.Content;
                     }
@@ -151,7 +164,7 @@ namespace ToDo.API.Repositories
             }
         }
 
-        public async Task<ResponseModel<Todo>> CreateOrUpdateTodoAsync(Todo entity, IBucket bucket)
+        public async Task<ResponseModel<Todo>> CreateOrUpdateTodoAsync(Todo entity)
         {
             try
             {
@@ -164,13 +177,13 @@ namespace ToDo.API.Repositories
                     entity.Id = Guid.NewGuid().ToString();
                     entity.CreateDateTime = DateTime.Now;
                     entity.PinnedDateTime = (entity.IsPinned ? DateTime.Now : (DateTime?)null);
-                    await bucket.InsertAsync(entity.Id, entity);
-                    var todoDocument = await bucket.GetDocumentAsync<Todo>(entity.Id);
+                    await todosBucket.InsertAsync(entity.Id, entity);
+                    var todoDocument = await todosBucket.GetDocumentAsync<Todo>(entity.Id);
                     response.Entity = todoDocument.Content;
                 }
                 else
                 {
-                    var context = new BucketContext(bucket);
+                    var context = new BucketContext(todosBucket);
                     var category = context.Query<Todo>().FirstOrDefault(u => u.Id == entity.Id);
                     if (category == null)
                     {
@@ -180,14 +193,14 @@ namespace ToDo.API.Repositories
                     }
                     else
                     {
-                        var todoDocument = await bucket.GetDocumentAsync<Todo>(entity.Id);
+                        var todoDocument = await todosBucket.GetDocumentAsync<Todo>(entity.Id);
                         todoDocument.Content.Title = entity.Title;
                         todoDocument.Content.Content = entity.Content;
                         todoDocument.Content.IsPinned = entity.IsPinned;
                         todoDocument.Content.PinnedDateTime = (entity.IsPinned ? DateTime.Now : (DateTime?)null);
                         todoDocument.Content.Alert = entity.Alert;
                         todoDocument.Content.IsItDone = entity.IsItDone;
-                        await bucket.UpsertAsync(todoDocument.Document);
+                        await todosBucket.UpsertAsync(todoDocument.Document);
                         context.SubmitChanges();
                         response.Entity = todoDocument.Content;
                     }

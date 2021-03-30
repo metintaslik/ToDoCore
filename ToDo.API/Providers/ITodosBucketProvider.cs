@@ -1,0 +1,12 @@
+﻿using Couchbase.Extensions.DependencyInjection;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace ToDo.API.Providers
+{
+    public interface ITodosBucketProvider : INamedBucketProvider
+    {
+    }
+}

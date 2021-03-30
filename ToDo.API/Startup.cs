@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using ToDo.API.Providers;
 using ToDo.API.Repositories;
 using ToDo.API.Services;
 
@@ -27,7 +28,10 @@ namespace ToDo.API
             {
                 x.SwaggerDoc("v1", new OpenApiInfo { Title = "ToDo App API", Version = "v1" });
             });
-            services.AddCouchbase(Configuration.GetSection("Couchbase"));
+            services.AddCouchbase(Configuration.GetSection("Couchbase"))
+                .AddCouchbaseBucket<IUsersBucketProvider>("users", "123456")
+                .AddCouchbaseBucket<ICategoriesBucketProvider>("categories", "123456")
+                .AddCouchbaseBucket<ITodosBucketProvider>("todos", "123456");
             services.AddTransient<ICoreService, CoreRepository>();
 
         }

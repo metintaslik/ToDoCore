@@ -6,9 +6,9 @@ namespace ToDo.API.Services
 {
     public interface ICoreService
     {
-        ResponseModel<User> LogIn(User entity, IBucket bucket);
-        Task<ResponseModel<User>> CreateOrUpdateUserAsync(User entity, IBucket bucket);
-        Task<ResponseModel<Category>> CreateOrUpdateCategoryAsync(Category entity, IBucket bucket);
-        Task<ResponseModel<Todo>> CreateOrUpdateTodoAsync(Todo entity, IBucket bucket);
+        ResponseModel<User> LogIn(User entity);
+        Task<ResponseModel<User>> CreateOrUpdateUserAsync(User entity);
+        Task<ResponseModel<Category>> CreateOrUpdateCategoryAsync(Category entity);
+        Task<ResponseModel<Todo>> CreateOrUpdateTodoAsync(Todo entity);
     }
 }
