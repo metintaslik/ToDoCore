@@ -2,6 +2,7 @@
 using Couchbase.Extensions.DependencyInjection;
 using Couchbase.Linq;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ToDo.API.Helper;
@@ -210,6 +211,104 @@ namespace ToDo.API.Repositories
             catch (Exception e)
             {
                 return ThrowingCatch(entity, e);
+            }
+        }
+
+        public ResponseModel<Category> GetCategory(Category entity)
+        {
+            var response = new ResponseModel<Category>();
+            try
+            {
+                if (entity == null)
+                    CheckEntity(entity);
+
+                var context = new BucketContext(categoriesBucket);
+                var category = context.Query<Category>().FirstOrDefault(c => c.Id == entity.Id);
+                if (category == null)
+                {
+                    response.Code = 0x0006;
+                    response.Error = true;
+                    response.Message = "Kategori bilgisi eşleşmedi, lütfen tekrar deneyiniz.";
+                }
+                else
+                {
+                    response.Error = false;
+                    response.Entity = category;
+                }
+
+                return response;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        public ResponseModel<List<Category>> GetCategories()
+        {
+            var response = new ResponseModel<List<Category>>();
+            try
+            {
+                var context = new BucketContext(categoriesBucket);
+                var categories = context.Query<Category>().ToList();
+                response.Error = false;
+                response.Entity = categories;
+                return response;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        public ResponseModel<Todo> GetTodo(Todo entity)
+        {
+            var response = new ResponseModel<Todo>();
+            try
+            {
+                if (entity == null)
+                    CheckEntity(entity);
+
+                var context = new BucketContext(categoriesBucket);
+                var category = context.Query<Todo>().FirstOrDefault(t => t.Id == entity.Id);
+                if (category == null)
+                {
+                    response.Code = 0x0006;
+                    response.Error = true;
+                    response.Message = "Yapılacak bilgisi eşleşmedi, lütfen tekrar deneyiniz.";
+                }
+                else
+                {
+                    response.Error = false;
+                    response.Entity = category;
+                }
+
+                return response;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        public ResponseModel<List<Todo>> GetTodos()
+        {
+            var response = new ResponseModel<List<Todo>>();
+            try
+            {
+                var context = new BucketContext(categoriesBucket);
+                var categories = context.Query<Todo>().ToList();
+                response.Error = false;
+                response.Entity = categories;
+                return response;
+            }
+            catch (Exception)
+            {
+
+                throw;
             }
         }
     }
