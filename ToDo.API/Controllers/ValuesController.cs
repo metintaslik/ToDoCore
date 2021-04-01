@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using ToDo.API.Models;
@@ -19,30 +20,58 @@ namespace ToDo.API.Controllers
 
         [HttpPost]
         [Route("/")]
-        public IActionResult Login([FromBody] User entity)
+        public ResponseModel<User> Login([FromBody] User entity)
         {
-            return Content(JsonConvert.SerializeObject(service.LogIn(entity)), "application/json", Encoding.UTF8);
+            return service.LogIn(entity);
         }
 
         [HttpPost]
         [Route("/User")]
-        public async Task<IActionResult> Register([FromBody] User entity)
+        public async Task<ResponseModel<User>> Register([FromBody] User entity)
         {
-            return Content(JsonConvert.SerializeObject(await service.CreateOrUpdateUserAsync(entity)), "application/json", Encoding.UTF8);
+            return await service.CreateOrUpdateUserAsync(entity);
         }
 
         [HttpPost]
         [Route("/Category")]
-        public async Task<IActionResult> Category([FromBody] Category entity)
+        public async Task<ResponseModel<Category>> PostCategory([FromBody] Category entity)
         {
-            return Content(JsonConvert.SerializeObject(await service.CreateOrUpdateCategoryAsync(entity)), "application/json", Encoding.UTF8);
+            return await service.CreateOrUpdateCategoryAsync(entity);
         }
 
         [HttpPost]
         [Route("/Todo")]
-        public async Task<IActionResult> Todo([FromBody] Todo entity)
+        public async Task<ResponseModel<Todo>> PostTodo([FromBody] Todo entity)
         {
-            return Content(JsonConvert.SerializeObject(await service.CreateOrUpdateTodoAsync(entity)), "application/json", Encoding.UTF8);
+            return await service.CreateOrUpdateTodoAsync(entity);
+        }
+
+        [HttpGet]
+        [Route("/Category")]
+        public ResponseModel<Category> GetCategory(Category entity)
+        {
+            return service.GetCategory(entity);
+        }
+
+        [HttpGet]
+        [Route("/Categories")]
+        public ResponseModel<List<Category>> GetCategories()
+        {
+            return service.GetCategories();
+        }
+
+        [HttpGet]
+        [Route("/Todo")]
+        public ResponseModel<Todo> GetTodo(Todo entity)
+        {
+            return service.GetTodo(entity);
+        }
+
+        [HttpGet]
+        [Route("/Todos")]
+        public ResponseModel<List<Todo>> GetTodos()
+        {
+            return service.GetTodos();
         }
     }
 }
